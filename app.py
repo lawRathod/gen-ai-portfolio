@@ -10,7 +10,7 @@ def llama_generate(prompt):
     url = 'https://6xtdhvodk2.execute-api.us-west-2.amazonaws.com/dsa_llm/generate'
     body = {
         "prompt": final_prompt.strip(),
-        "max_gen_len": 50,
+        "max_gen_len": 100,
         "temperature": 0.01,
         "top_p": 1,
         "api_token": st.secrets["AWS_API_KEY"],
@@ -24,7 +24,7 @@ def llama_generate(prompt):
         if cmd != "":
             return cmd
     except:
-        print("___\n", out, "\n___")
+        print("###\n", repr(out), "\n###")
         return ""
 
 def get_tasks():
