@@ -1,33 +1,37 @@
 import streamlit as st
-import subprocess
-import re
 import requests
 import json
-from streamlit.connections import SQLConnection
+from prompt import create_prompt, exec_commands
 
 ## functions
-def llama_generate(prompt,
-                   api_token,
-                   max_gen_len = 512,
-                   temperature = 0.01,
-                   top_p =1):
-  url = 'https://6xtdhvodk2.execute-api.us-west-2.amazonaws.com/dsa_llm/generate'
-  body = {
-    "prompt": prompt,
-    "max_gen_len": max_gen_len,
-    "temperature": temperature,
-    "top_p": top_p,
-    "api_token": api_token
-  }
-  res = requests.post(url,  json = body)
-  return  json.loads(res.text)["body"]["generation"]
+def llama_generate(prompt):
+    final_prompt = create_prompt(prompt)
+    print("*****\n", final_prompt, "\n*****")
+    url = 'https://6xtdhvodk2.execute-api.us-west-2.amazonaws.com/dsa_llm/generate'
+    body = {
+        "prompt": final_prompt.strip(),
+        "max_gen_len": 50,
+        "temperature": 0.01,
+        "top_p": 1,
+        "api_token": st.secrets["AWS_API_KEY"],
+    }
+    res = requests.post(url,  json = body)
+    out = json.loads(res.text)["body"]["generation"]
+    out = out.strip()
+    try:
+        outputjs = json.loads(out)
+        cmd = outputjs["command"]
+        if cmd != "":
+            return cmd
+    except:
+        print("___\n", out, "\n___")
+        return ""
 
 def get_tasks():
     # Query and display the data you inserted
     conn = st.connection('main', type='sql')
     tasks = conn.query('select * from Task;', ttl=0)
     return tasks
-
 
 ## Streamlit
 
@@ -56,9 +60,17 @@ if prompt := st.chat_input("How can I help you with the tasks?"):
         st.markdown(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt})
 
-    res = get_tasks()
-    # st.chat_message("assistant").write(llama_generate(prompt, st.secrets["AWS_API_KEY"]))
+    # res = get_tasks()
+    cmd = llama_generate(prompt)
+    res = f"Command executed: {cmd}"
+
     with st.chat_message("assistant"):
-        st.write(res)
+        if cmd != "":
+            exec_commands(cmd)
+            st.write(res)
+            st.dataframe(get_tasks())
+        else:
+            res = "I'm sorry, I couldn't understand your request. Please try again with different prompt."
+            st.write(res)
     st.session_state.messages.append({"role": "assistant", "content": res})
         
