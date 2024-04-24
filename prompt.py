@@ -30,6 +30,7 @@ def create_prompt(task):
 
 	last_prompt =  f"""
 <s>[INST] Awesome, you are being really helpful. Let's try to use all we have learned until now. To recap the list of available commands are: ["done", "task", "add"]. Please remember to only include JSON in your answer. Another insight is that a high priority task is any task with priority greater than 1. Pay utmost focus on the task id because they are really important. The tasks on the app looks like this now:
+ID | Title | Context | Priority
 ```
 {exec_commands('todo search ""')}
 ```
