@@ -30,7 +30,7 @@ def llama_generate(prompt):
 def get_tasks():
     # Query and display the data you inserted
     conn = st.connection('main', type='sql')
-    tasks = conn.query('select * from Task;', ttl=0)
+    tasks = conn.query('select t.id, t.title, c.path as context, t.priority, t.done from Task t, Context c where t.context = c.id;', ttl=0)
     return tasks
 
 ## Streamlit
@@ -52,7 +52,7 @@ for message in st.session_state.messages:
 
 if len(st.session_state.messages) == 0:
     st.chat_message("assistant").write(greeting)
-    st.dataframe(get_tasks())
+    st.dataframe(get_tasks(), hide_index=True)
 
 if prompt := st.chat_input("How can I help you with the tasks?"):
     # Display user message in chat message container
@@ -68,7 +68,7 @@ if prompt := st.chat_input("How can I help you with the tasks?"):
         if cmd != "":
             exec_commands(cmd)
             st.write(res)
-            st.dataframe(get_tasks())
+            st.dataframe(get_tasks(), hide_index=True)
         else:
             res = "I'm sorry, I couldn't understand your request. Please try again with different prompt."
             st.write(res)
