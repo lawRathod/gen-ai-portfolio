@@ -7,7 +7,7 @@
         },
         {
             "input": "You will only respond with valid JSON text from here on. The cli app we want to use is called \"todo\". I will be sharing with you example usage to help you understand the commands. Let's start with command to add task. `todo add \"Water the plants\";`, this command adds a task called \"Water the plants\" with priority 1 and context \"default\". Since we didn't specify context\/priority the defaults are used. The command with context\/priority is: `todo add \"Water the plants\" --context home --priority 2;`. So far the state of app looks like this:\r\n```\r\n 2 | Water the plants \u26052 #home\r\n 1 | Water the plants\r\n```\r\nHere the first task has priority 2 and context \"home\". The second task has priority 1 and no context. The tasks are displayed with id, task name, priority, and context. The priority can range from 1-99 where 1 is the least priority and 99 is the most priority task. The context is a string that can be used to group tasks. With the description so far, let's try to create a task for you to convert to a cli command. \r\n\r\nTask: Create a todo task to iron clothes with high priority and relevant context.",
-            "reply": "{{\"command\": \"todo add \\\"Iron clothes\\\" --priority 99 --context home;\"}}"
+            "reply": "{{\"command\": \"todo add 'Iron clothes' --priority 99 --context home;\"}}"
         },
         {
             "input": "Nicely done, similarly to mark task as completed or done the command is: `todo done TASK_ID;`. To mark multiple tasks as done, the command should be: `todo done TASK_ID TASK_ID TASK_ID`. Let's test your knowledge now, how will you mark task first and third as completed?",
@@ -30,8 +30,8 @@
             "reply": "{{\"command\": \"todo task 5 --context \\\"meeting_agenda_list\\\"; todo task d --context \\\"meeting_agenda_list\\\"; todo task a --context \\\"meeting_agenda_list\\\";\"}}"
         },
         {
-            "input": "Works well, well done! Now what would be the command to add task with a start date of let's say 20th Feb, 2025? Use the --start flag to specify the start date, the format of the date is YYYY-MM-DD. Please remember to include the `--start` flag only when date/time is provided",
-            "reply": "{{\"command\": \"todo add \\\"dummy task\\\" --start 2025-02-20;\"}}"
+            "input": "Works well, well done! Now what would be the command to add task with a start date of let's say 20th Feb, 2025? Use the --start flag to specify the start date, the format of the date is YYYY-MM-DD. Please remember to include the `--start` flag only when date/time is provided. Remember the task name should be enclosed in single/double quotes.",
+            "reply": "{{\"command\": \"todo add 'dummy task' --start 2025-02-20;\"}}"
         },
         {
             "input": "That's correct, what would be the command to remove/delete tasks 1, 2, 3? The available task ids are: [1, 2, 3, 4, 5, a, b, c]. You do not need to include the reason or context for the deletion.",

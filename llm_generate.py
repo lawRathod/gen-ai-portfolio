@@ -95,23 +95,27 @@ Task: {prompt}
     """
     return temp.strip()
 
-f = open('cli_prompts.json')
-cli_examples = json.load(f)
-def cli_prompt(prompt: str) -> str:
-    example_prompt = PromptTemplate(
+def create_few_shot_template(data: dict):
+    base_prompt = PromptTemplate(
         input_variables=["input", "reply"], 
         template="<s>[INST] {input} [/INST] {reply} </s>", 
     )
 
-    cli_command_prompt = FewShotPromptTemplate(
-        examples=cli_examples["training"][1:],
-        example_prompt=example_prompt,
+    few_shot_template = FewShotPromptTemplate(
+        examples=data["training"][1:],
+        example_prompt=base_prompt,
         suffix="<s>[INST] {input} [/INST]",
         example_separator="",
-        prefix= f"<s>[INST] <<SYS>>\r\n{cli_examples['system_prompt']}\r\n<</SYS>>\r\n{cli_examples['training'][0]['input']} [/INST] {cli_examples['training'][0]['reply']} </s>",
+        prefix= f"<s>[INST] <<SYS>>\r\n{data['system_prompt']}\r\n<</SYS>>\r\n{data['training'][0]['input']} [/INST] {data['training'][0]['reply']} </s>",
         input_variables=["input"],
     )
 
+    return few_shot_template
+
+f = open('cli_prompts.json')
+cli_examples = json.load(f)
+def cli_prompt(prompt: str) -> str:
+    cli_command_prompt = create_few_shot_template(cli_examples)
     final_prompt = cli_command_prompt.format(input=final_cli_prompt_template(prompt))
 
     return get_llm().invoke(final_prompt)
@@ -119,26 +123,12 @@ def cli_prompt(prompt: str) -> str:
 f = open('explain_prompts.json')
 explain_examples = json.load(f)
 def explain_prompt(prompt: str) -> str:
-    example_prompt = PromptTemplate(
-        input_variables=["input", "reply"], 
-        template="<s>[INST] {input} [/INST] {reply} </s>", 
-    )
-
-    explain_command_prompt = FewShotPromptTemplate(
-        examples=explain_examples["training"][1:],
-        example_prompt=example_prompt,
-        suffix="<s>[INST] {input} [/INST]",
-        example_separator="",
-        prefix= f"<s>[INST] <<SYS>>\r\n{explain_examples['system_prompt']}\r\n<</SYS>>\r\n{explain_examples['training'][0]['input']} [/INST] {explain_examples['training'][0]['reply']} </s>",
-        input_variables=["input"],
-    )
-
+    explain_command_prompt = create_few_shot_template(explain_examples)
     final_prompt = explain_command_prompt.format(input=final_explain_prompt_template(prompt))
 
     return get_llm().invoke(final_prompt)
 
     
-
 def get_cmd(prompt):
     explanation = explain_prompt(prompt)
     print("###Explanation\n", explanation, "\n###")
