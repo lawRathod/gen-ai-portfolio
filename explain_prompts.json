@@ -1,0 +1,45 @@
+{
+    "system_prompt": "You are a very helpful and obedient assistant. You need act as an descriptor that explains very clearly the steps to reach a goal. You will use information provided to you to learn the semantics of a cli app. Be precise and thoughtful in your response.",
+    "training": [
+        {
+            "input": "Hello! I will be sending you a task that needs to be converted to a cli command. You will need to generate a cli command that will perform the task. The task will be related to a todo app.",
+            "reply": "Happy to help you, let's get started!"
+        },
+        {
+            "input": "The todo app has ability to add tasks with priority and context. The tasks are displayed with id, task name, priority, and context. The priority can range from 1-99 where 1 is the least priority and 99 is the most priority task. The context is a string that can be used to group tasks. There's also ability to remove tasks by ids. When adding task the user can choose to provide a start date but that's optional. Context and priority when adding a task is also optional, the default priority is 1.",
+            "reply": "I am ready to help you with the tasks."
+        },
+        {
+            "input": "There exists a todo cli app that is used by many. Given the state from the application and a task, your goal is to come up with clear explanation of state and steps needed to achieve the task. Here is example of the state from the application:\r\n```\r\n 2 | Water the plants \u26052 #home\r\n 1 | Water the plants\r\n```\r\nHere the first task has priority 2 and context \"home\". The second task has priority 1 and no context. The tasks are displayed with id, task name, priority, and context. The priority can range from 1-99 where 1 is the least priority and 99 is the most priority task. The context is a string that can be used to group tasks. With the description so far, let's try to create a task for you to convert to a cli command. \r\n\r\nTask: Create a todo task to iron clothes with high priority and relevant context.",
+            "reply": "Create a todo task with name \"iron clothes\" with high priority of 2 or more and add relevant context."
+        },
+        {
+          "input": "Here's the current state from the application:\r\n```\r\n 1 | Eat lunch together #meeting_agenda_list\r\n 2 | Review notes on quantum mechanics #study_list\r\n 3 | Solve practice problems for organic chemistry #study_list\r\n 4 | Watch tutorial videos on machine learning algorithms #study_list\r\n 5 | Complete project proposal for client X \u26059 #meeting_agenda_list\r\n 6 | Respond to emails from stakeholders \u26059 #meeting_agenda_list\r\n 7 | Schedule follow-up meetings with collaborators \u26059 #meeting_agenda_list\r\n 8 | Go for a 30-minute jog #health_list\r\n 9 | Do yoga for 20 minutes #health_list\r\n a | Schedule a check-up appointment with the doctor \u26059 #health_list\r\n b | Organize closet and donate old clothes #personal_list\r\n c | Start learning a new language with Duolingo #personal_list\r\n```\r\n\r\nTask: Prepare for the team meeting by moving all high priority tasks to the meeting_agenda_list",
+          "reply": "The tasks with ids: [5, 6, 7, a] needs change in their context only. The context should change to \"meeting_agenda_list\""
+        },
+        {
+          "input": "Here's the current state from the application:\r\n```\r\n 1 | Eat lunch together #meeting_agenda_list\r\n 2 | Review notes on quantum mechanics #study_list\r\n 3 | Solve practice problems for organic chemistry #study_list\r\n 4 | Watch tutorial videos on machine learning algorithms #study_list\r\n 5 | Complete project proposal for client X \u26059 #meeting_agenda_list\r\n 6 | Respond to emails from stakeholders \u26059 #meeting_agenda_list\r\n 7 | Schedule follow-up meetings with collaborators \u26059 #meeting_agenda_list\r\n 8 | Go for a 30-minute jog #health_list\r\n 9 | Do yoga for 20 minutes #health_list\r\n a | Schedule a check-up appointment with the doctor \u26059 #health_list\r\n b | Organize closet and donate old clothes #personal_list\r\n c | Start learning a new language with Duolingo #personal_list\r\n```\r\n\r\nTask: Make meeting_agenda_list low priority.",
+          "reply": "The tasks with ids: [1, 5, 6, 7] needs to be changed to low priority. The priority should be 1."
+        },
+        {
+            "input": "How would you mark a task as complete in the todo app?",
+            "reply": "Need to use `todo done <task_id>;` command followed by the task id to mark a task as complete. The command accepts multiple task ids separated by space."
+        },
+        {
+            "input": "How would you prioritize task?",
+            "reply": "Need to update priority of task by using \"todo task <task_id> --priority <new_priority>;\" command. The new priority should be greater than 1. This command cannot accept multiple task ids therefore multiple commands need to be joined using semicolon."
+        },
+        {
+            "input": "How would you move tasks to a new context?",
+            "reply": "Need to update context of task by using \"todo task <task_id> --context \"<new_context>\";\" command. The new context should be a string. This command cannot accept multiple task ids therefore multiple commands need to be joined using semicolon."
+        },
+        {
+            "input": "How would you merge lists or contexts?",
+            "reply": "Need to update context of task by using \"todo task <task_id> --context \"<new_context>\";\" command. The new context should be a string. This command cannot accept multiple task ids therefore multiple commands need to be joined using semicolon."
+        },
+        {
+            "input": "What are high priority tasks?",
+            "reply": "Tasks with priority greater than 1 are considered high priority tasks."
+        }
+    ]
+}

@@ -13,11 +13,9 @@ from langchain.agents import load_tools, create_react_agent, AgentExecutor
 from langchain import hub, memory
 import os
 from dotenv import load_dotenv
-
 load_dotenv()
 
 AWS_API_KEY = os.getenv('AWS_API_KEY')
-OPENWEATHERMAP_API_KEY = os.getenv('OPENWEATHERMAP_API_KEY')
 
 class AWS_LLM(LLM):
     @property
@@ -40,6 +38,12 @@ class AWS_LLM(LLM):
         res = requests.post("https://6xtdhvodk2.execute-api.us-west-2.amazonaws.com/dsa_llm/generate",  json = body)
         return  json.loads(res.text)["body"]["generation"]
 
+def get_llm():
+    llm = AWS_LLM()
+    return llm
+    
+
+
 # utils functions
 def exec_commands(commands):    
     p = subprocess.run(["bash", "-c", commands], capture_output=True, text=True)
@@ -56,14 +60,14 @@ def exec_commands(commands):
 ''', re.VERBOSE)
     return ansi_escape.sub('', p.stdout)
 
-def final_prompt_template(prompt: str): 
+def final_cli_prompt_template(prompt: str): 
     temp = f"""
 Awesome, you are being really helpful. Let's try to use all we have learned until now. 
 To recap the list of available commands are: ["done", "task", "add", "rm"].
 Please remember to only include JSON in your answer without any reason , format: `{{\"command\": \"YOUR_COMMAND\"}}`. Also remember that a high priority task is any task with priority greater than 1. 
 Pay utmost focus on the task id because they are really important. A task id is a number/alphabet that is unique to each task.
 
-The tasks on the app looks like this now, make sure to use all information available to you to complete the task.:
+The tasks on the app looks like this now, make sure to use all information available to you to complete the task:
 ID | Title | Context | Priority
 ```
 {exec_commands('todo search ""')}
@@ -74,40 +78,79 @@ Datetime now: {exec_commands('date')}
     """
     return temp.strip()
 
+def final_explain_prompt_template(prompt: str): 
+    temp = f"""
+Awesome, you are being really helpful. Let's try to use all we have learned until now. 
+Pay utmost focus on the task id because they are really important. A task id is a number/alphabet that is unique to each task.
+You will not produce commands or examples, only explain what needs to be done in general tone. Keep your explanation needs to be 1 statement long.
+Remember not to update context unless asked explicitly in the task.
+Always only use the commands you have learned and try not to invent new commands.
+
+The tasks on the app looks like this now, make sure to use all information available to you to complete the task:
+ID | Title | Context | Priority
+```
+{exec_commands('todo search ""')}
+```
+Task: {prompt}
+    """
+    return temp.strip()
+
 f = open('cli_prompts.json')
-examples = json.load(f)
-def generate(prompt: str) -> str:
-    llm = AWS_LLM()
+cli_examples = json.load(f)
+def cli_prompt(prompt: str) -> str:
     example_prompt = PromptTemplate(
         input_variables=["input", "reply"], 
         template="<s>[INST] {input} [/INST] {reply} </s>", 
     )
 
     cli_command_prompt = FewShotPromptTemplate(
-        examples=examples["training"][1:],
+        examples=cli_examples["training"][1:],
         example_prompt=example_prompt,
         suffix="<s>[INST] {input} [/INST]",
         example_separator="",
-        prefix= f"<s>[INST] <<SYS>>\r\n{examples['system_prompt']}\r\n<</SYS>>\r\n{examples['training'][0]['input']} [/INST] {examples['training'][0]['reply']} </s>",
+        prefix= f"<s>[INST] <<SYS>>\r\n{cli_examples['system_prompt']}\r\n<</SYS>>\r\n{cli_examples['training'][0]['input']} [/INST] {cli_examples['training'][0]['reply']} </s>",
         input_variables=["input"],
     )
 
-    final_prompt = cli_command_prompt.format(input=final_prompt_template(prompt))
-    
-    return llm.invoke(final_prompt)
+    final_prompt = cli_command_prompt.format(input=final_cli_prompt_template(prompt))
 
- 
+    return get_llm().invoke(final_prompt)
+
+f = open('explain_prompts.json')
+explain_examples = json.load(f)
+def explain_prompt(prompt: str) -> str:
+    example_prompt = PromptTemplate(
+        input_variables=["input", "reply"], 
+        template="<s>[INST] {input} [/INST] {reply} </s>", 
+    )
+
+    explain_command_prompt = FewShotPromptTemplate(
+        examples=explain_examples["training"][1:],
+        example_prompt=example_prompt,
+        suffix="<s>[INST] {input} [/INST]",
+        example_separator="",
+        prefix= f"<s>[INST] <<SYS>>\r\n{explain_examples['system_prompt']}\r\n<</SYS>>\r\n{explain_examples['training'][0]['input']} [/INST] {explain_examples['training'][0]['reply']} </s>",
+        input_variables=["input"],
+    )
+
+    final_prompt = explain_command_prompt.format(input=final_explain_prompt_template(prompt))
+
+    return get_llm().invoke(final_prompt)
+
+    
 
 def get_cmd(prompt):
-    out = generate(prompt)
+    explanation = explain_prompt(prompt)
+    print("###Explanation\n", explanation, "\n###")
+    out = cli_prompt(explanation)
     cmd_json = out.strip()
 
     try:
         outputjs = json.loads(cmd_json)
         cmd = outputjs["command"]
         if cmd != "":
-            print("###\n", cmd, "\n###")
+            print("###Command\n", cmd, "\n###")
             return cmd
     except:
-        print("###\n", repr(cmd_json), "\n###")
+        print("###Invalid Command\n", repr(cmd_json), "\n###")
         raise Exception("Invalid command")
