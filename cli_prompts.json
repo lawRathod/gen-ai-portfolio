@@ -7,31 +7,31 @@
         },
         {
             "input": "You will only respond with valid JSON text from here on. The cli app we want to use is called \"todo\". I will be sharing with you example usage to help you understand the commands. Let's start with command to add task. `todo add \"Water the plants\";`, this command adds a task called \"Water the plants\" with priority 1 and context \"default\". Since we didn't specify context\/priority the defaults are used. The command with context\/priority is: `todo add \"Water the plants\" --context home --priority 2;`. So far the state of app looks like this:\r\n```\r\n 2 | Water the plants \u26052 #home\r\n 1 | Water the plants\r\n```\r\nHere the first task has priority 2 and context \"home\". The second task has priority 1 and no context. The tasks are displayed with id, task name, priority, and context. The priority can range from 1-99 where 1 is the least priority and 99 is the most priority task. The context is a string that can be used to group tasks. With the description so far, let's try to create a task for you to convert to a cli command. \r\n\r\nTask: Create a todo task to iron clothes with high priority and relevant context.",
-            "reply": "{\"command\": \"todo add \\\"Iron clothes\\\" --priority 99 --context home;\"}"
+            "reply": "{{\"command\": \"todo add \\\"Iron clothes\\\" --priority 99 --context home;\"}}"
         },
         {
             "input": "Nicely done, similarly to mark task as completed or done the command is: `todo done TASK_ID;`. To mark multiple tasks as done, the command should be: `todo done TASK_ID TASK_ID TASK_ID`. Let's test your knowledge now, how will you mark task first and third as completed?",
-            "reply": "Sure I will try to help. The command should be\r\n{\"command\": \"task done 1 3;\"}"
+            "reply": "Sure I will try to help. The command should be\r\n{{\"command\": \"task done 1 3;\"}}"
         },
         {
             "input": "Please never include anything other than the JSON in your response.",
-            "reply": "{\"command\": \"task done 1 3;\"}"
+            "reply": "{{\"command\": \"task done 1 3;\"}}"
         },
         {
             "input": "Nice job, you are doing a great job. Let's move on to more commands. The tasks on the app looks like this now: \r\n```\r\n 1 | [DONE] LLM Homework #homework_list\r\n 2 | NLP Homework #homework_list\r\n 3 | [DONE] Math Homework #homework_list\r\n 4 | ML Homework #homework_list\r\n```\r\nIf you notice carefully the tasks 1 and 3 are marked as done or completed while, task 2 and 4 are still pending. The context for all tasks is \"homework_list\". It's important to infer details correctly from shared state. The next command is to update the task priority. The command to update task priority is: `todo task TASK_ID --priority PRIORITY;`. Let's say we want to update the priority of task 2 to 2. What will be the command?",
-            "reply": "{\"command\": \"todo task 2 --priority 2;\"}"
+            "reply": "{{\"command\": \"todo task 2 --priority 2;\"}}"
         },
         {
             "input": "Great job! You are doing fantastic. Let's move on to the next command. The tasks on the app looks like this now:\r\n``` \r\n 1 | [DONE] LLM Homework #homework_list\r\n 2 | NLP Homework \u26052 #homework_list\r\n 3 | [DONE] Math Homework #homework_list\r\n 4 | ML Homework #homework_list\r\n```\r\nThe next command is to update the task context. The command to update task context is: `todo task TASK_ID --context \"CONTEXT\";`. Let's say we want to update the context of task 4 to \"work_list\". What will be the command?",
-            "reply": "{\"command\": \"todo task 4 --context \\\"work_list\\\";\"}"
+            "reply": "{{\"command\": \"todo task 4 --context \\\"work_list\\\";\"}}"
         },
         {
             "input": "I am impressed by how good you are, amazing job!. The tasks on the app looks like this now:?\r\n``` \r\n 1 | Eat lunch together #meeting_agenda_list\r\n 2 | Review notes on quantum mechanics #study_list\r\n 3 | Solve practice problems for organic chemistry #study_list\r\n 4 | Watch tutorial videos on machine learning algorithms #study_list\r\n 5 | Complete project proposal for client X \u26059 #meeting_agenda_list\r\n d | Respond to emails from stakeholders \u26059 #meeting_agenda_list\r\n e | Schedule follow-up meetings with collaborators \u26059 #meeting_agenda_list\r\n 8 | Go for a 30-minute jog #health_list\r\n 9 | Do yoga for 20 minutes #health_list\r\n a | Schedule a check-up appointment with the doctor \u26059 #health_list\r\n b | Organize closet and donate old clothes #personal_list\r\n c | Start learning a new language with Duolingo #personal_list\r\n```\r\nPlease pay attention at the task ids because they are of two types here, numbers and alphabets. What would be the command to move high priority tasks to meeting_agenda_list?",
-            "reply": "{\"command\": \"todo task 5 --context \\\"meeting_agenda_list\\\"; todo task d --context \\\"meeting_agenda_list\\\"; todo task e --context \\\"meeting_agenda_list\\\"; todo task a --context \\\"meeting_agenda_list\\\";\"}"
+            "reply": "{{\"command\": \"todo task 5 --context \\\"meeting_agenda_list\\\"; todo task d --context \\\"meeting_agenda_list\\\"; todo task e --context \\\"meeting_agenda_list\\\"; todo task a --context \\\"meeting_agenda_list\\\";\"}}"
         },
         {
             "input": "Great! It's really amazing that you didn't forget to only include JSON. I hope you can continue to not include any other texts in all future responses. Let's learn how to chain commands to execute multiple. To perform two commands you can separate them with semicolon. Example: `todo task 2 --priority 2; todo task 3 --priority 99;`. Similarly how would you move task one and third to work_list?",
-            "reply": "{\"command\": \"todo task 1 --context \\\"work_list\\\"; todo task 3 --context \\\"work_list\\\";\"}"
+            "reply": "{{\"command\": \"todo task 1 --context \\\"work_list\\\"; todo task 3 --context \\\"work_list\\\";\"}}"
         }
     ]
 }

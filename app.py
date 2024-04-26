@@ -1,32 +1,12 @@
 import streamlit as st
 import requests
 import json
-from prompt import create_prompt, exec_commands
+from llm_generate import get_cmd, exec_commands
+# from bokeh.models.widgets import Button
+# from bokeh.models import CustomJS
+# from streamlit_bokeh_events import streamlit_bokeh_events
 
 ## functions
-def llama_generate(prompt):
-    final_prompt = create_prompt(prompt)
-    print("*****\n", final_prompt, "\n*****")
-    url = 'https://6xtdhvodk2.execute-api.us-west-2.amazonaws.com/dsa_llm/generate'
-    body = {
-        "prompt": final_prompt.strip(),
-        "max_gen_len": 100,
-        "temperature": 0.01,
-        "top_p": 1,
-        "api_token": st.secrets["AWS_API_KEY"],
-    }
-    res = requests.post(url,  json = body)
-    out = json.loads(res.text)["body"]["generation"]
-    out = out.strip()
-    try:
-        outputjs = json.loads(out)
-        cmd = outputjs["command"]
-        if cmd != "":
-            return cmd
-    except:
-        print("###\n", repr(out), "\n###")
-        return ""
-
 def get_tasks():
     # Query and display the data you inserted
     conn = st.connection('main', type='sql')
@@ -61,7 +41,7 @@ if prompt := st.chat_input("How can I help you with the tasks?"):
     st.session_state.messages.append({"role": "user", "content": prompt})
 
     # res = get_tasks()
-    cmd = llama_generate(prompt)
+    cmd = get_cmd(prompt)
     res = f"Command executed: {cmd}"
 
     with st.chat_message("assistant"):
@@ -74,3 +54,36 @@ if prompt := st.chat_input("How can I help you with the tasks?"):
             st.write(res)
     st.session_state.messages.append({"role": "assistant", "content": res})
         
+# STT
+# stt_button = Button(label="Speak", width=100)
+
+# stt_button.js_on_event("button_click", CustomJS(code="""
+#     var recognition = new webkitSpeechRecognition();
+#     recognition.continuous = true;
+#     recognition.interimResults = true;
+ 
+#     recognition.onresult = function (e) {
+#         var value = "";
+#         for (var i = e.resultIndex; i < e.results.length; ++i) {
+#             if (e.results[i].isFinal) {
+#                 value += e.results[i][0].transcript;
+#             }
+#         }
+#         if ( value != "") {
+#             document.dispatchEvent(new CustomEvent("GET_TEXT", {detail: value}));
+#         }
+#     }
+#     recognition.start();
+#     """))
+
+# result = streamlit_bokeh_events(
+#     stt_button,
+#     events="GET_TEXT",
+#     key="listen",
+#     refresh_on_update=False,
+#     override_height=75,
+#     debounce_time=0)
+
+# if result:
+#     if "GET_TEXT" in result:
+#         st.write(result.get("GET_TEXT"))
