@@ -10,7 +10,8 @@ from llm_generate import get_cmd, exec_commands
 def get_tasks():
     # Query and display the data you inserted
     conn = st.connection('main', type='sql')
-    tasks = conn.query('select t.id, t.title, c.path as context, t.priority, t.done from Task t, Context c where t.context = c.id;', ttl=0)
+    tasks = conn.query('select t.id, t.title, c.path as context, t.priority, iif(ifnull(t.done, false), \
+                       \'true\', \'false\') done, t.start from Task t, Context c where t.context = c.id;', ttl=0)
     return tasks
 
 ## Streamlit
