@@ -58,12 +58,19 @@ def exec_commands(commands):
 
 def final_prompt_template(prompt: str): 
     temp = f"""
-Awesome, you are being really helpful. Let's try to use all we have learned until now. To recap the list of available commands are: ["done", "task", "add"]. Please remember to only include JSON in your answer. Another insight is that a high priority task is any task with priority greater than 1. Pay utmost focus on the task id because they are really important. The tasks on the app looks like this now:
+Awesome, you are being really helpful. Let's try to use all we have learned until now. 
+To recap the list of available commands are: ["done", "task", "add", "rm"].
+Please remember to only include JSON in your answer without any reason , format: `{{\"command\": \"YOUR_COMMAND\"}}`. Also remember that a high priority task is any task with priority greater than 1. 
+Pay utmost focus on the task id because they are really important. A task id is a number/alphabet that is unique to each task.
+
+The tasks on the app looks like this now, make sure to use all information available to you to complete the task.:
 ID | Title | Context | Priority
 ```
 {exec_commands('todo search ""')}
 ```
 Your goal is the following: {prompt}
+Additional information:
+Datetime now: {exec_commands('date')}
     """
     return temp.strip()
 
@@ -99,6 +106,7 @@ def get_cmd(prompt):
         outputjs = json.loads(cmd_json)
         cmd = outputjs["command"]
         if cmd != "":
+            print("###\n", cmd, "\n###")
             return cmd
     except:
         print("###\n", repr(cmd_json), "\n###")

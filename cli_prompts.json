@@ -26,8 +26,20 @@
             "reply": "{{\"command\": \"todo task 4 --context \\\"work_list\\\";\"}}"
         },
         {
-            "input": "I am impressed by how good you are, amazing job!. The tasks on the app looks like this now:?\r\n``` \r\n 1 | Eat lunch together #meeting_agenda_list\r\n 2 | Review notes on quantum mechanics #study_list\r\n 3 | Solve practice problems for organic chemistry #study_list\r\n 4 | Watch tutorial videos on machine learning algorithms #study_list\r\n 5 | Complete project proposal for client X \u26059 #meeting_agenda_list\r\n d | Respond to emails from stakeholders \u26059 #meeting_agenda_list\r\n e | Schedule follow-up meetings with collaborators \u26059 #meeting_agenda_list\r\n 8 | Go for a 30-minute jog #health_list\r\n 9 | Do yoga for 20 minutes #health_list\r\n a | Schedule a check-up appointment with the doctor \u26059 #health_list\r\n b | Organize closet and donate old clothes #personal_list\r\n c | Start learning a new language with Duolingo #personal_list\r\n```\r\nPlease pay attention at the task ids because they are of two types here, numbers and alphabets. What would be the command to move high priority tasks to meeting_agenda_list?",
-            "reply": "{{\"command\": \"todo task 5 --context \\\"meeting_agenda_list\\\"; todo task d --context \\\"meeting_agenda_list\\\"; todo task e --context \\\"meeting_agenda_list\\\"; todo task a --context \\\"meeting_agenda_list\\\";\"}}"
+            "input": "I am impressed by how good you are, amazing job!. The tasks on the app looks like this now:?\r\n``` \r\n 1 | Eat lunch together #meeting_agenda_list\r\n 2 | Review notes on quantum mechanics #study_list\r\n 3 | Solve practice problems for organic chemistry #study_list\r\n 5 | Complete project proposal for client X \u26059 #meeting_agenda_list\r\n d | Respond to emails from stakeholders \u26059 #meeting_agenda_list\r\n a | Schedule a check-up appointment with the doctor \u26059 #health_list\r\n b | Organize closet and donate old clothes #personal_list\r\n c | Start learning a new language with Duolingo #personal_list\r\n```\r\nPlease pay attention at the task ids because they are of two types here, numbers and alphabets. What would be the command to move high priority tasks to meeting_agenda_list?",
+            "reply": "{{\"command\": \"todo task 5 --context \\\"meeting_agenda_list\\\"; todo task d --context \\\"meeting_agenda_list\\\"; todo task a --context \\\"meeting_agenda_list\\\";\"}}"
+        },
+        {
+            "input": "Works well, well done! Now what would be the command to add task with a start date of let's say 20th Feb, 2025? Use the --start flag to specify the start date, the format of the date is YYYY-MM-DD. Please remember to include the `--start` flag only when date/time is provided",
+            "reply": "{{\"command\": \"todo add \\\"dummy task\\\" --start 2025-02-20;\"}}"
+        },
+        {
+            "input": "That's correct, what would be the command to remove/delete tasks 1, 2, 3? The available task ids are: [1, 2, 3, 4, 5, a, b, c]. You do not need to include the reason or context for the deletion.",
+            "reply": "{{\"command\": \"todo rm 1 2 3;\"}}"
+        },
+        {
+            "input": "You are truly very helpful, can you tell me how would you prioritize task a and c? Available tasks are: [1, 2, 3, 4, 5, a, b, c]",
+            "reply": "{{\"command\": \"todo task a --priority 99; todo task c --priority 99;\"}}"
         },
         {
             "input": "Great! It's really amazing that you didn't forget to only include JSON. I hope you can continue to not include any other texts in all future responses. Let's learn how to chain commands to execute multiple. To perform two commands you can separate them with semicolon. Example: `todo task 2 --priority 2; todo task 3 --priority 99;`. Similarly how would you move task one and third to work_list?",
