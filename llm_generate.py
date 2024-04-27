@@ -1,48 +1,11 @@
-from typing import Any, List, Mapping, Optional
-
-import requests
 import json
 import subprocess
 import re
 
-from langchain_core.callbacks.manager import CallbackManagerForLLMRun
-from langchain_core.language_models.llms import LLM
 from langchain_core.prompts.few_shot import FewShotPromptTemplate
 from langchain_core.prompts.prompt import PromptTemplate
-from langchain.agents import load_tools, create_react_agent, AgentExecutor
-from langchain import hub, memory
-import os
-from dotenv import load_dotenv
-load_dotenv()
-
-AWS_API_KEY = os.getenv('AWS_API_KEY')
-
-class AWS_LLM(LLM):
-    @property
-    def _llm_type(self) -> str:
-        return "AWS_LLM_LLAMA"
-
-    def _call(
-        self,
-        prompt: str,
-        run_manager: Optional[CallbackManagerForLLMRun] = None,
-        **kwargs: Any,
-    ) -> str:
-        body = {
-          "prompt": prompt.strip(),
-          "max_gen_len": 512,
-          "temperature": 0.01,
-          "top_p": 1,
-          "api_token": AWS_API_KEY
-        }
-        res = requests.post("https://6xtdhvodk2.execute-api.us-west-2.amazonaws.com/dsa_llm/generate",  json = body)
-        return  json.loads(res.text)["body"]["generation"]
-
-def get_llm():
-    llm = AWS_LLM()
-    return llm
-    
-
+from llm import get_llm
+from rag import get_weather
 
 # utils functions
 def exec_commands(commands):    
@@ -78,11 +41,11 @@ Datetime now: {exec_commands('date')}
     """
     return temp.strip()
 
-def final_explain_prompt_template(prompt: str): 
+def final_explain_prompt_template(prompt: str, weather: bool = False): 
     temp = f"""
 Awesome, you are being really helpful. Let's try to use all we have learned until now. 
 Pay utmost focus on the task id because they are really important. A task id is a number/alphabet that is unique to each task.
-You will not produce commands or examples, only explain what needs to be done in general tone. Keep your explanation needs to be 1 statement long.
+You will not produce commands or examples, only explain what needs to be done in general tone. Keep your explanation 1 statement long.
 Remember not to update context unless asked explicitly in the task.
 Always only use the commands you have learned and try not to invent new commands.
 
@@ -93,6 +56,12 @@ ID | Title | Context | Priority
 ```
 Task: {prompt}
     """
+    if weather:
+        temp += f"""
+Additional information:
+Datetime now: {exec_commands('date')}
+Weather for next seven days: {get_weather(prompt)}"""
+
     return temp.strip()
 
 def create_few_shot_template(data: dict):
@@ -122,15 +91,15 @@ def cli_prompt(prompt: str) -> str:
 
 f = open('explain_prompts.json')
 explain_examples = json.load(f)
-def explain_prompt(prompt: str) -> str:
+def explain_prompt(prompt: str, rag_enabled = False) -> str:
     explain_command_prompt = create_few_shot_template(explain_examples)
-    final_prompt = explain_command_prompt.format(input=final_explain_prompt_template(prompt))
+    final_prompt = explain_command_prompt.format(input=final_explain_prompt_template(prompt, rag_enabled))
 
     return get_llm().invoke(final_prompt)
 
     
-def get_cmd(prompt):
-    explanation = explain_prompt(prompt)
+def get_cmd(prompt, rag = False):
+    explanation = explain_prompt(prompt, rag)
     print("###Explanation\n", explanation, "\n###")
     out = cli_prompt(explanation)
     cmd_json = out.strip()

@@ -41,8 +41,7 @@ if prompt := st.chat_input("How can I help you with the tasks?"):
         st.markdown(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt})
 
-    # res = get_tasks()
-    cmd = get_cmd(prompt)
+    cmd = get_cmd(prompt, True)
     res = f"Command executed: {cmd}"
 
     with st.chat_message("assistant"):
