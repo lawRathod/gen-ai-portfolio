@@ -65,51 +65,123 @@ Weather for next seven days: {get_weather(prompt)}"""
     return temp.strip()
 
 def create_few_shot_template(data: dict):
-    base_prompt = PromptTemplate(
-        input_variables=["input", "reply"], 
-        template="<s>[INST] {input} [/INST] {reply} </s>", 
-    )
+  """
+  Creates a FewShotPromptTemplate object based on provided data.
 
-    few_shot_template = FewShotPromptTemplate(
-        examples=data["training"][1:],
-        example_prompt=base_prompt,
-        suffix="<s>[INST] {input} [/INST]",
-        example_separator="",
-        prefix= f"<s>[INST] <<SYS>>\r\n{data['system_prompt']}\r\n<</SYS>>\r\n{data['training'][0]['input']} [/INST] {data['training'][0]['reply']} </s>",
-        input_variables=["input"],
-    )
+  Args:
+      data: A dictionary containing training examples and system prompt information.
+          - data["training"]: A list of dictionaries representing training examples.
+              - Each dictionary in "training" should have "input" and "reply" keys.
+          - data["system_prompt"]: The system prompt used for all training examples.
 
-    return few_shot_template
+  Returns:
+      A FewShotPromptTemplate object constructed from the provided data.
+  """
 
+  # Define a base prompt template with input and reply variables
+  base_prompt = PromptTemplate(
+      input_variables=["input", "reply"],
+      template="<s>[INST] {input} [/INST] {reply} </s>",
+  )
+
+  # Create a FewShotPromptTemplate using the base prompt, training examples, and system prompt
+  few_shot_template = FewShotPromptTemplate(
+      examples=data["training"][1:],  # Exclude the first example from examples
+      example_prompt=base_prompt,
+      suffix="<s>[INST] {input} [/INST]",  # Suffix for subsequent examples
+      example_separator="",  # No separator between examples
+      prefix=f"<s>[INST] <<SYS>>\r\n{data['system_prompt']}\r\n<</SYS>>\r\n{data['training'][0]['input']} [/INST] {data['training'][0]['reply']} </s>",  # Prefix with system prompt and first example
+      input_variables=["input"],  # Input variable for the final prompt
+  )
+
+  return few_shot_template
+
+# Load examples from JSON files
 f = open('cli_prompts.json')
 cli_examples = json.load(f)
-def cli_prompt(prompt: str) -> str:
-    cli_command_prompt = create_few_shot_template(cli_examples)
-    final_prompt = cli_command_prompt.format(input=final_cli_prompt_template(prompt))
 
-    return get_llm().invoke(final_prompt)
+def cli_prompt(prompt: str) -> str:
+  """
+  Generates a command for the CLI interface using a few-shot prompt and LLM.
+
+  Args:
+      prompt: The user's goal or task description.
+
+  Returns:
+      The generated command string from the LLM.
+  """
+
+  # Create a few-shot template for CLI prompts using pre-loaded examples
+  cli_command_prompt = create_few_shot_template(cli_examples)
+
+  # Generate a final prompt by combining the CLI prompt template with the user's prompt
+  final_prompt = cli_command_prompt.format(input=final_cli_prompt_template(prompt))
+
+  # Invoke the LLM to get the response for the final prompt
+  return get_llm().invoke(final_prompt)
 
 f = open('explain_prompts.json')
 explain_examples = json.load(f)
-def explain_prompt(prompt: str, rag_enabled = False) -> str:
-    explain_command_prompt = create_few_shot_template(explain_examples)
-    final_prompt = explain_command_prompt.format(input=final_explain_prompt_template(prompt, rag_enabled))
 
-    return get_llm().invoke(final_prompt)
+def explain_prompt(prompt: str, rag_enabled=False) -> str:
+  """
+  Generates an explanation prompt for the user's goal or task using a few-shot prompt and LLM.
 
-    
-def get_cmd(prompt, rag = False):
-    explanation = explain_prompt(prompt, rag)
-    print("###Explanation\n", explanation, "\n###")
-    out = cli_prompt(explanation)
-    cmd_json = out.strip()
+  Args:
+      prompt: The user's goal or task description.
+      rag_enabled: (Optional) A flag indicating whether to use RAG for additional context (likely not used here).
 
-    try:
-        outputjs = json.loads(cmd_json)
-        cmd = outputjs["command"]
-        if cmd != "":
-            print("###Command\n", cmd, "\n###")
-            return cmd
-    except:
-        print("###Invalid Command\n", repr(cmd_json), "\n###")
-        raise Exception("Invalid command")
+  Returns:
+      The generated explanation string from the LLM.
+  """
+
+  # Create a few-shot template for explanation prompts using pre-loaded examples
+  explain_command_prompt = create_few_shot_template(explain_examples)
+
+  # Generate a final prompt by combining the explanation prompt template with the user's prompt and optional RAG flag
+  final_prompt = explain_command_prompt.format(input=final_explain_prompt_template(prompt, rag_enabled))
+
+  # Invoke the LLM to get the response for the final prompt
+  return get_llm().invoke(final_prompt)    
+
+def get_cmd(prompt, rag=False):
+  """
+  Extracts a command for the CLI interface from a user prompt.
+
+  Args:
+      prompt: The user's goal or task description.
+      rag: (Optional) A flag indicating whether to use RAG for additional context (likely not used here).
+
+  Returns:
+      The extracted command string from the LLM's response.
+
+  Raises:
+      Exception: If an invalid command is extracted.
+  """
+
+  # Generate an explanation for the user's prompt
+  explanation = explain_prompt(prompt, rag)
+  print("###Explanation\n", explanation, "\n###")
+
+  # Generate a command for the CLI interface based on the explanation
+  out = cli_prompt(explanation)
+
+  # Remove any leading or trailing whitespace from the output
+  cmd_json = out.strip()
+
+  try:
+    # Parse the output as JSON
+    outputjs = json.loads(cmd_json)
+
+    # Extract the "command" field from the JSON
+    cmd = outputjs["command"]
+
+    if cmd != "":
+      # Print the extracted command
+      print("###Command\n", cmd, "\n###")
+      return cmd
+
+  except:
+    # Handle invalid JSON or missing "command" field
+    print("###Invalid Command\n", repr(cmd_json), "\n###")
+    raise Exception("Invalid command")
