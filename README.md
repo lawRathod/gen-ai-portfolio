@@ -29,7 +29,6 @@
 - [Getting Started](#getting-started)
   - [Installation](#installation)
   - [Usage](#usage)
-  - [Tests](#tests)
 - [Project Roadmap](#project-roadmap)
 - [License](#license)
 - [Acknowledgments](#acknowledgments)
@@ -38,13 +37,16 @@
 
 ## Overview
 
-<code>► INSERT-TEXT-HERE</code>
+<code>Engineering with generative AI Task 1 implementation</code>
 
 ---
 
 ## Features
 
-<code>► INSERT-TEXT-HERE</code>
+1. Convert human language to todo app cli command.
+2. Use RAG to enrich user inputs and make more meaningful modificaitons to current task list.
+3. Contains weather agent that understands weather queries in human language and uses llm to explain weather conditions for the query.
+4. Streamlit UI to interact with the llm.
 
 ---
 
@@ -53,15 +55,20 @@
 ```sh
 └── gen-ai-portfolio/
     ├── LICENSE
+    ├── Makefile
     ├── README.md
     ├── Task_1_Test_Cases.ipynb
     ├── app.py
-    ├── cli_prompts.json
-    ├── explain_prompts.json
-    ├── llm.py
-    ├── llm_generate.py
-    ├── rag.py
-    └── requirements.txt
+    ├── buildSecrets.sh
+    ├── few_shot_prompts
+    │   ├── cli_prompts.json
+    │   └── explain_prompts.json
+    ├── requirements.txt
+    └── src
+        ├── __init__.py
+        ├── llm.py
+        ├── llm_generate.py
+        └── rag.py
 ```
 
 ---
@@ -70,16 +77,32 @@
 
 <details closed><summary>.</summary>
 
-| File                                                                                                         | Summary                         |
-| ------------------------------------------------------------------------------------------------------------ | ------------------------------- |
-| [requirements.txt](https://github.com/lawRathod/gen-ai-portfolio/blob/master/requirements.txt)               | <code>► INSERT-TEXT-HERE</code> |
-| [explain_prompts.json](https://github.com/lawRathod/gen-ai-portfolio/blob/master/explain_prompts.json)       | <code>► INSERT-TEXT-HERE</code> |
-| [llm.py](https://github.com/lawRathod/gen-ai-portfolio/blob/master/llm.py)                                   | <code>► INSERT-TEXT-HERE</code> |
-| [Task_1_Test_Cases.ipynb](https://github.com/lawRathod/gen-ai-portfolio/blob/master/Task_1_Test_Cases.ipynb) | <code>► INSERT-TEXT-HERE</code> |
-| [rag.py](https://github.com/lawRathod/gen-ai-portfolio/blob/master/rag.py)                                   | <code>► INSERT-TEXT-HERE</code> |
-| [cli_prompts.json](https://github.com/lawRathod/gen-ai-portfolio/blob/master/cli_prompts.json)               | <code>► INSERT-TEXT-HERE</code> |
-| [app.py](https://github.com/lawRathod/gen-ai-portfolio/blob/master/app.py)                                   | <code>► INSERT-TEXT-HERE</code> |
-| [llm_generate.py](https://github.com/lawRathod/gen-ai-portfolio/blob/master/llm_generate.py)                 | <code>► INSERT-TEXT-HERE</code> |
+| File                                                                                                         | Summary                                                 |
+| ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------- |
+| [requirements.txt](https://github.com/lawRathod/gen-ai-portfolio/blob/master/requirements.txt)               | <code>Project dependencies</code>                       |
+| [Makefile](https://github.com/lawRathod/gen-ai-portfolio/blob/master/Makefile)                               | <code>Handy build targets to quickly get started</code> |
+| [buildSecrets.sh](https://github.com/lawRathod/gen-ai-portfolio/blob/master/buildSecrets.sh)                 | <code>Script to generate streamlit secrets file</code>  |
+| [Task_1_Test_Cases.ipynb](https://github.com/lawRathod/gen-ai-portfolio/blob/master/Task_1_Test_Cases.ipynb) | <code>Task 1 notebook with testcases</code>             |
+| [app.py](https://github.com/lawRathod/gen-ai-portfolio/blob/master/app.py)                                   | <code>Streamlit app</code>                              |
+
+</details>
+
+<details closed><summary>few_shot_prompts</summary>
+
+| File                                                                                                                    | Summary                                                                                |
+| ----------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| [explain_prompts.json](https://github.com/lawRathod/gen-ai-portfolio/blob/master/few_shot_prompts/explain_prompts.json) | <code>Few shot training prompts for explaining user intent given the todo state</code> |
+| [cli_prompts.json](https://github.com/lawRathod/gen-ai-portfolio/blob/master/few_shot_prompts/cli_prompts.json)         | <code>Few shot training prompts for converting user prompt to cli command</code>                                                                          |
+
+</details>
+
+<details closed><summary>src</summary>
+
+| File                                                                                             | Summary                         |
+| ------------------------------------------------------------------------------------------------ | ------------------------------- |
+| [llm.py](https://github.com/lawRathod/gen-ai-portfolio/blob/master/src/llm.py)                   | <code>Contains getter to get llm instance</code> |
+| [rag.py](https://github.com/lawRathod/gen-ai-portfolio/blob/master/src/rag.py)                   | <code>Contains rag agents</code> |
+| [llm_generate.py](https://github.com/lawRathod/gen-ai-portfolio/blob/master/src/llm_generate.py) | <code>Contains boiled down logic to get cli command from given input</code> |
 
 </details>
 
@@ -113,20 +136,17 @@
 
 ### Usage
 
-> NOTE: Before beginning make sure to have `AWS_API_KEY`, `OPENWEATHERMAP_API_KEY` in your env OR .env file in project root.
-
+> NOTE: Before beginning make sure to have `AWS_API_KEY`, `OPENWEATHERMAP_API_KEY` variables in your env OR .env file in project root.
 > Run gen-ai-portfolio's streamlit UI using the command below:
 >
 > ```console
 > $ make start
 > ```
-
-### Tests
-
-> Run the test suite using the command below:
+>
+> Start jupyter notebook to run testcases:
 >
 > ```console
-> $ pytest
+> $ make start_jupyter
 > ```
 
 ---
@@ -134,10 +154,10 @@
 ## Project Roadmap
 
 - [x] `Build a way to convert human language to todo app cli command using LLM.`
-- [X] `Pass all testcases in Task_1_Test_Cases.ipynb`
-- [X] `Build streamlit UI to try out the LLM and prompts`
-- [X] `Build weather agent to query for weather in human language`
-- [X] `Integrate weather agent to improve logic used for task management`
+- [x] `Pass all testcases in Task_1_Test_Cases.ipynb`
+- [x] `Build streamlit UI to try out the LLM and prompts`
+- [x] `Build weather agent to query for weather in human language`
+- [x] `Integrate weather agent to improve logic used for task management`
 - [ ] `Extend usage of rag agents to include calendar and search`
 - [ ] `Improve available cli understand of llm to cover more actions`
 - [ ] `Make prompts cli app agnostic`

@@ -9,3 +9,7 @@ deps:
 buildSecrets:
 	# creates .streamlit/secrets.toml file using the environment variables
 	bash -c ./buildSecrets.sh
+
+start_jupyter:
+	# starts the jupyter notebook
+	jupyter notebook Task_1_Test_Cases.ipynb
