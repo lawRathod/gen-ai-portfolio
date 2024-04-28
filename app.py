@@ -1,5 +1,5 @@
 import streamlit as st
-from llm_generate import get_cmd, exec_commands  # Import functions from llm_generate
+from src.llm_generate import get_cmd, exec_commands  # Import functions from llm_generate
 
 ## Functions
 

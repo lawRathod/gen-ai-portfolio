@@ -1,5 +1,3 @@
-from typing import Union
-
 # Import libraries from langchain
 from langchain.agents import create_react_agent, AgentExecutor, load_tools, AgentOutputParser
 from langchain_core.agents import AgentFinish
@@ -11,7 +9,7 @@ import os
 import geocoder
 
 # Import custom LLM function
-from llm import get_llm
+from .llm import get_llm
 
 # Get user location using IP address
 g = geocoder.ip('me')

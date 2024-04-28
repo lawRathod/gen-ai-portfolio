@@ -4,8 +4,10 @@ import re
 
 from langchain_core.prompts.few_shot import FewShotPromptTemplate
 from langchain_core.prompts.prompt import PromptTemplate
-from llm import get_llm
-from rag import get_weather
+from .llm import get_llm
+from .rag import get_weather
+import os
+dirname = os.path.dirname(__file__)
 
 # utils functions
 def exec_commands(commands):    
@@ -41,7 +43,7 @@ Datetime now: {exec_commands('date')}
     """
     return temp.strip()
 
-def final_explain_prompt_template(prompt: str, weather: bool = False): 
+def final_explain_prompt_template(prompt: str, rag: bool = False): 
     temp = f"""
 Awesome, you are being really helpful. Let's try to use all we have learned until now. 
 Pay utmost focus on the task id because they are really important. A task id is a number/alphabet that is unique to each task.
@@ -56,7 +58,7 @@ ID | Title | Context | Priority
 ```
 Task: {prompt}
     """
-    if weather:
+    if rag and any(c in prompt.lower() for c in ["weather", "temperature", "forecast", "rain", "sun", "cloud", "climate"]):
         temp += f"""
 Additional information:
 Datetime now: {exec_commands('date')}
@@ -96,8 +98,8 @@ def create_few_shot_template(data: dict):
 
   return few_shot_template
 
-# Load examples from JSON files
-f = open('cli_prompts.json')
+# Open the cli_prompts.json file and load the examples
+f = open(os.path.join(dirname, '../few_shot_prompts/cli_prompts.json'))
 cli_examples = json.load(f)
 
 def cli_prompt(prompt: str) -> str:
@@ -120,7 +122,8 @@ def cli_prompt(prompt: str) -> str:
   # Invoke the LLM to get the response for the final prompt
   return get_llm().invoke(final_prompt)
 
-f = open('explain_prompts.json')
+# Open the explain_prompts.json file and load the examples
+f = open(os.path.join(dirname, '../few_shot_prompts/explain_prompts.json'))
 explain_examples = json.load(f)
 
 def explain_prompt(prompt: str, rag_enabled=False) -> str:
